@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators'
  *
  * @param {Object} opts
  */
-const request = opts =>
+const request = (opts) =>
   ajax({
     url: opts.uri,
     body: opts.body,

@@ -1,7 +1,6 @@
 import { createUploadMiddleware } from '../index'
 import fetchMock from 'fetch-mock'
-import { execute } from 'apollo-link'
-import gql from 'graphql-tag'
+import { execute, gql } from '@apollo/client'
 
 jest.mock('../request')
 jest.mock('../extractFiles')
@@ -18,7 +17,7 @@ const sampleMutation = gql`
     }
   }
 `
-const makePromise = res =>
+const makePromise = (res) =>
   new Promise((resolve, reject) => setTimeout(() => resolve(res)))
 
 const data = { data: { hello: 'world' } }
@@ -75,7 +74,7 @@ describe('#createUploadMiddleware', () => {
       Object.assign({}, contextHeaders, optionsHeaders),
     )
   })
-  it('uses custom fetch function', done => {
+  it('uses custom fetch function', (done) => {
     const variables = { params: 'stub' }
     fetchMock.post('begin:http://data/', makePromise(data))
     const link = createUploadMiddleware({
@@ -86,7 +85,7 @@ describe('#createUploadMiddleware', () => {
       query: sampleMutation,
       variables,
     }).subscribe(
-      makeCallback(done, result => {
+      makeCallback(done, (result) => {
         const [uri, options] = fetchMock.lastCall()
         const { method, body } = options
         expect(body).toBeDefined()

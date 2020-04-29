@@ -1,11 +1,14 @@
-import { HttpLink } from 'apollo-link-http'
-import { ApolloLink, concat } from 'apollo-link'
+import {
+  ApolloLink,
+  concat,
+  Observable,
+  HttpLink,
+  parseAndCheckHttpResponse,
+} from '@apollo/client'
 import { print } from 'graphql/language/printer'
 import request from './request'
 import extractFiles from './extractFiles'
 import { isObject } from './validators'
-import { parseAndCheckHttpResponse } from 'apollo-link-http-common'
-import { Observable } from 'apollo-link'
 
 export const createUploadMiddleware = ({ uri, headers, fetch, credentials }) =>
   new ApolloLink((operation, forward) => {
@@ -33,20 +36,20 @@ export const createUploadMiddleware = ({ uri, headers, fetch, credentials }) =>
 
         // is there a custom fetch? then use it
         if (fetch) {
-          return new Observable(observer => {
+          return new Observable((observer) => {
             fetch(uri, options)
-              .then(response => {
+              .then((response) => {
                 operation.setContext({ response })
                 return response
               })
               .then(parseAndCheckHttpResponse(operation))
-              .then(result => {
+              .then((result) => {
                 // we have data and can send it to back up the link chain
                 observer.next(result)
                 observer.complete()
                 return result
               })
-              .catch(err => {
+              .catch((err) => {
                 if (err.result && err.result.errors && err.result.data) {
                   observer.next(err.result)
                 }
@@ -69,7 +72,7 @@ export const createUploadMiddleware = ({ uri, headers, fetch, credentials }) =>
     return forward(operation)
   })
 
-export const createLink = opts =>
+export const createLink = (opts) =>
   concat(createUploadMiddleware(opts), new HttpLink(opts))
 
 export { ReactNativeFile } from './validators'
